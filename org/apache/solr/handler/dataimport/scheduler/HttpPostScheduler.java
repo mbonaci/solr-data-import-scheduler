@@ -31,11 +31,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Represents main DIHScheduler thread (run by Timer background thread).<br>
+ * extends java.util.TimerTask, which implements java.lang.Runnable.<br>
  * Gets DIH params and sets default values, where appropriate.<br>
  * Uses DIH params to assemble complete URL.<br>
  * Invokes URL using HTTP POST request.<br>
- * For more info:<br>
- * http://wiki.apache.org/solr/DataImportHandler#HTTPPostScheduler
  * @author mbonaci
  */
 public class HttpPostScheduler extends TimerTask {
@@ -145,9 +144,10 @@ public class HttpPostScheduler extends TimerTask {
 
                     conn.setRequestMethod("POST");
                     conn.setRequestProperty("type", "submit");
+                    conn.setRequestProperty("Content-Type","application/html");
                     conn.setDoOutput(true);
 
-                        // Send HTTP POST
+                    // Send HTTP POST
                     conn.connect();
 
                     logger.info(core + "<index update process> Request method\t\t\t" + conn.getRequestMethod());
