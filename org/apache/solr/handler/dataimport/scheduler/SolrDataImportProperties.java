@@ -28,8 +28,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Used to load settings from global dataimport.properties<br>
- * See here for more info:<br>
- * http://wiki.apache.org/solr/DataImportHandler#SolrDataImportProperties
+ * Uses java.util.Properties to load settings from dataimport.properties
  * @author mbonaci
  */
 public class SolrDataImportProperties {
