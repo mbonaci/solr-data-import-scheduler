@@ -33,8 +33,9 @@ import org.slf4j.LoggerFactory;
  * to facilitate periodic method invocation (scheduling).<br>
  * Timer is essentially a facility for threads to schedule tasks
  * for future execution in a background thread.<br>
- * For more info:<br>
- * http://wiki.apache.org/solr/DataImportHandler#ApplicationListener
+ * the class implements javax.servlet.ServletContextListener (listens to web app Initialize and Destroy events)
+ * uses HTTPPostScheduler, java.util.Timer and context attribute map to facilitate periodic method invocation
+ * Timer is essentially a facility that enables scheduling a tasks for future execution in a background thread.
  * @author mbonaci
  */
 public class ApplicationListener implements ServletContextListener {
