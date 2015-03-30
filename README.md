@@ -15,7 +15,7 @@ In 2010 I published the original source in the [Solr Wiki](https://wiki.apache.o
 and soon after more and more people started asking for a compiled version so they can just drop in a JAR file in their Solr's `lib` folder, 
 customize their scheduler params, add a single line (filter) into `web.xml` and start using it.
 
-You can download the jar file [here](https://github.com/mbonaci/solr-data-import-scheduler/raw/master/release/dihs.jar) (it's in the `release` folder).
+You can download the jar file [here](https://github.com/mbonaci/solr-data-import-scheduler/raw/master/release/dihs.jar) (it's in the [release](./release) folder).
 
 Feel free to ask a questions or give a suggestion (file an [issue](https://github.com/mbonaci/solr-data-import-scheduler/issues)).
 
