@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Represents main DIHScheduler thread (run by Timer background thread).<br>
- * extends java.util.TimerTask, which implements java.lang.Runnable.<br>
+ * Extends java.util.TimerTask, which implements java.lang.Runnable.<br>
  * Gets DIH params and sets default values, where appropriate.<br>
  * Uses DIH params to assemble complete URL.<br>
  * Invokes URL using HTTP POST request.<br>
