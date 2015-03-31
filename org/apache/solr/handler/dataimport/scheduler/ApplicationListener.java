@@ -53,13 +53,12 @@ public class ApplicationListener implements ServletContextListener {
 
         // remove the timer from the context
         servletContext.removeAttribute("timer");
-    
     }
     
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         ServletContext servletContext = servletContextEvent.getServletContext();
-        try{
+        try {
             // create the timer and timer task objects
             Timer timer = new Timer();
             HttpPostScheduler task = new HttpPostScheduler(servletContext.getServletContextName(), timer);
@@ -81,7 +80,7 @@ public class ApplicationListener implements ServletContextListener {
             servletContext.setAttribute("timer", timer);
     
         } catch (Exception e) {
-            if(e.getMessage().endsWith("disabled")) {
+            if (e.getMessage().endsWith("disabled")) {
                 logger.info("Schedule disabled");
             } else {
                 logger.error("Problem initializing the scheduled task: ", e);
