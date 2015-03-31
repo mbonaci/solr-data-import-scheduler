@@ -51,84 +51,85 @@ public class HttpPostScheduler extends TimerTask {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpPostScheduler.class);
 
-    public HttpPostScheduler(String webAppName, Timer t) throws Exception{
-        //load properties from global dataimport.properties
+    public HttpPostScheduler(String webAppName, Timer t) throws Exception {
+        
+        // load properties from global dataimport.properties
         p = new SolrDataImportProperties();
         reloadParams();
         fixParams(webAppName);
 
-        if(!syncEnabled.equals("1")) throw new Exception("Schedule disabled");
+        if (!syncEnabled.equals("1")) throw new Exception("Schedule disabled");
 
-        if(syncCores == null || (syncCores.length == 1 && syncCores[0].isEmpty())){
+        if (syncCores == null || (syncCores.length == 1 && syncCores[0].isEmpty())) {
             singleCore = true;
             logger.info("<index update process> Single core identified in dataimport.properties");
-        }else{
+        } else {
             singleCore = false;
             logger.info("<index update process> Multiple cores identified in dataimport.properties. Sync active for: " + cores);
         }
     }
 
-    private void reloadParams(){
+    private void reloadParams() {
         p.loadProperties(true);
-        syncEnabled     = p.getProperty(SolrDataImportProperties.SYNC_ENABLED);
-        cores           = p.getProperty(SolrDataImportProperties.SYNC_CORES);
-        server          = p.getProperty(SolrDataImportProperties.SERVER);
-        port            = p.getProperty(SolrDataImportProperties.PORT);
-        webapp          = p.getProperty(SolrDataImportProperties.WEBAPP);
-        params          = p.getProperty(SolrDataImportProperties.PARAMS);
-        interval        = p.getProperty(SolrDataImportProperties.INTERVAL);
-        syncCores       = cores != null ? cores.split(",") : null;
+        syncEnabled = p.getProperty(SolrDataImportProperties.SYNC_ENABLED);
+        cores       = p.getProperty(SolrDataImportProperties.SYNC_CORES);
+        server      = p.getProperty(SolrDataImportProperties.SERVER);
+        port        = p.getProperty(SolrDataImportProperties.PORT);
+        webapp      = p.getProperty(SolrDataImportProperties.WEBAPP);
+        params      = p.getProperty(SolrDataImportProperties.PARAMS);
+        interval    = p.getProperty(SolrDataImportProperties.INTERVAL);
+        syncCores   = cores != null ? cores.split(",") : null;
     }
 
-    private void fixParams(String webAppName){
-        if(server == null   || server.isEmpty())    server = "localhost";
-        if(port == null     || port.isEmpty())      port = "8080";
-        if(webapp == null   || webapp.isEmpty())    webapp = webAppName;
-        if(interval == null || interval.isEmpty() || getIntervalInt() <= 0) interval = "30";
+    private void fixParams(String webAppName) {
+        if (server == null   || server.isEmpty())     server = "localhost";
+        if (port == null     || port.isEmpty())       port = "8080";
+        if (webapp == null   || webapp.isEmpty())     webapp = webAppName;
+        if (interval == null || interval.isEmpty() || getIntervalInt() <= 0) interval = "30";
     }
 
     public void run() {
-        try{
+        try {
             // check mandatory params
-            if(server.isEmpty() || webapp.isEmpty() || params == null || params.isEmpty()){
+            if (server.isEmpty() || webapp.isEmpty() || params == null || params.isEmpty()) {
                 logger.warn("<index update process> Insuficient info provided for data import");
                 logger.info("<index update process> Reloading global dataimport.properties");
                 reloadParams();
 
             // single-core
-            }else if(singleCore){
+            } else if (singleCore) {
                 prepUrlSendHttpPost();
 
             // multi-core
-            }else if(syncCores.length == 0 || (syncCores.length == 1 && syncCores[0].isEmpty())){
+            } else if (syncCores.length == 0 || (syncCores.length == 1 && syncCores[0].isEmpty())) {
                 logger.warn("<index update process> No cores scheduled for data import");
                 logger.info("<index update process> Reloading global dataimport.properties");
                 reloadParams();
 
-            }else{
-                for(String core : syncCores){
+            } else {
+                for (String core : syncCores) {
                     prepUrlSendHttpPost(core);
                 }
             }
-        }catch(Exception e){
+        } catch(Exception e) {
             logger.error("Failed to prepare for sendHttpPost", e);
             reloadParams();
         }
     }
 
 
-    private void prepUrlSendHttpPost(){
+    private void prepUrlSendHttpPost() {
         String coreUrl = "http://" + server + ":" + port + "/" + webapp + params;
         sendHttpPost(coreUrl, null);
     }
 
-    private void prepUrlSendHttpPost(String coreName){
+    private void prepUrlSendHttpPost(String coreName) {
         String coreUrl = "http://" + server + ":" + port + "/" + webapp + "/" + coreName + params;
         sendHttpPost(coreUrl, coreName);
     }
 
 
-    private void sendHttpPost(String completeUrl, String coreName){
+    private void sendHttpPost(String completeUrl, String coreName) {
         DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss SSS");
         Date startTime = new Date();
 
@@ -137,7 +138,7 @@ public class HttpPostScheduler extends TimerTask {
 
         logger.info(core + "<index update process> Process started at .............. " + df.format(startTime));
 
-        try{
+        try {
 
             URL url = new URL(completeUrl);
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
@@ -160,7 +161,7 @@ public class HttpPostScheduler extends TimerTask {
             logger.info(core + "<index update process> Response code\t\t\t" + conn.getResponseCode());
 
             //listen for change in properties file if an error occurs
-            if(conn.getResponseCode() != 200){
+            if (conn.getResponseCode() != 200) {
                 reloadParams();
             }
 
@@ -168,19 +169,19 @@ public class HttpPostScheduler extends TimerTask {
             logger.info(core + "<index update process> Disconnected from server\t\t" + server);
             Date endTime = new Date();
             logger.info(core + "<index update process> Process ended at ................ " + df.format(endTime));
-        }catch(MalformedURLException mue){
+        } catch (MalformedURLException mue) {
             logger.error("Failed to assemble URL for HTTP POST", mue);
-        }catch(IOException ioe){
+        } catch (IOException ioe) {
             logger.error("Failed to connect to the specified URL while trying to send HTTP POST", ioe);
-        }catch(Exception e){
+        } catch (Exception e) {
             logger.error("Failed to send HTTP POST", e);
         }
     }
 
     public int getIntervalInt() {
-        try{
+        try {
             return Integer.parseInt(interval);
-        }catch(NumberFormatException e){
+        } catch (NumberFormatException e) {
             logger.warn("Unable to convert 'interval' to number. Using default value (30) instead", e);
             return 30; //return default in case of error
         }
