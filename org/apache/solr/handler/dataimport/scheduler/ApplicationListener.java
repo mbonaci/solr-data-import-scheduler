@@ -30,65 +30,62 @@ import org.slf4j.LoggerFactory;
 /**
  * Listens to Solr web application Initialize and Destroy events
  * Uses HTTPPostScheduler, java.util.Timer and context attribute map
- * to facilitate periodic method invocation (scheduling).<br>
- * Timer is essentially a facility for threads to schedule tasks
+ * to facilitate periodic method invocation.<br>
+ * Timer is essentially a facility that enables scheduling tasks
  * for future execution in a background thread.<br>
- * the class implements javax.servlet.ServletContextListener (listens to web app Initialize and Destroy events)
- * uses HTTPPostScheduler, java.util.Timer and context attribute map to facilitate periodic method invocation
- * Timer is essentially a facility that enables scheduling a tasks for future execution in a background thread.
+ * The class implements javax.servlet.ServletContextListener (listens to web app Initialize and Destroy events)
  * @author mbonaci
  */
 public class ApplicationListener implements ServletContextListener {
 
-        private static final Logger logger = LoggerFactory.getLogger(ApplicationListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationListener.class);
+    
+    @Override
+    public void contextDestroyed(ServletContextEvent servletContextEvent) {
+        ServletContext servletContext = servletContextEvent.getServletContext();
 
-        @Override
-        public void contextDestroyed(ServletContextEvent servletContextEvent) {
-                ServletContext servletContext = servletContextEvent.getServletContext();
+        // get our timer from the context
+        Timer timer = (Timer)servletContext.getAttribute("timer");
 
-                // get our timer from the context
-                Timer timer = (Timer)servletContext.getAttribute("timer");
+        // cancel all active tasks in the timers queue
+        if (timer != null)
+            timer.cancel();
 
-                // cancel all active tasks in the timers queue
-                if (timer != null)
-                        timer.cancel();
+        // remove the timer from the context
+        servletContext.removeAttribute("timer");
+    
+    }
+    
+    @Override
+    public void contextInitialized(ServletContextEvent servletContextEvent) {
+        ServletContext servletContext = servletContextEvent.getServletContext();
+        try{
+            // create the timer and timer task objects
+            Timer timer = new Timer();
+            HttpPostScheduler task = new HttpPostScheduler(servletContext.getServletContextName(), timer);
 
-                // remove the timer from the context
-                servletContext.removeAttribute("timer");
+            // get our interval from HTTPPostScheduler
+            int interval = task.getIntervalInt();
 
+            // get a calendar to set the start time (first run)
+            Calendar calendar = Calendar.getInstance();
+
+            // set the first run to now + interval (to avoid fireing while the app/server is starting)
+            calendar.add(Calendar.MINUTE, interval);
+            Date startTime = calendar.getTime();
+
+            // schedule the task
+            timer.scheduleAtFixedRate(task, startTime, 1000 * 60 * interval);
+
+            // save the timer in context
+            servletContext.setAttribute("timer", timer);
+    
+        } catch (Exception e) {
+            if(e.getMessage().endsWith("disabled")){
+                logger.info("Schedule disabled");
+            }else{
+                logger.error("Problem initializing the scheduled task: ", e);
+            }
         }
-
-        @Override
-        public void contextInitialized(ServletContextEvent servletContextEvent) {
-                ServletContext servletContext = servletContextEvent.getServletContext();
-                try{
-                        // create the timer and timer task objects
-                        Timer timer = new Timer();
-                        HttpPostScheduler task = new HttpPostScheduler(servletContext.getServletContextName(), timer);
-
-                        // get our interval from HTTPPostScheduler
-                        int interval = task.getIntervalInt();
-
-                        // get a calendar to set the start time (first run)
-                        Calendar calendar = Calendar.getInstance();
-
-                        // set the first run to now + interval (to avoid fireing while the app/server is starting)
-                        calendar.add(Calendar.MINUTE, interval);
-                        Date startTime = calendar.getTime();
-
-                        // schedule the task
-                        timer.scheduleAtFixedRate(task, startTime, 1000 * 60 * interval);
-
-                        // save the timer in context
-                        servletContext.setAttribute("timer", timer);
-
-                } catch (Exception e) {
-                        if(e.getMessage().endsWith("disabled")){
-                                logger.info("Schedule disabled");
-                        }else{
-                                logger.error("Problem initializing the scheduled task: ", e);
-                        }
-                }
-        }
-
+    }
 }
