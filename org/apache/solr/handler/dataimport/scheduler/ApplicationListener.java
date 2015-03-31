@@ -81,9 +81,9 @@ public class ApplicationListener implements ServletContextListener {
             servletContext.setAttribute("timer", timer);
     
         } catch (Exception e) {
-            if(e.getMessage().endsWith("disabled")){
+            if(e.getMessage().endsWith("disabled")) {
                 logger.info("Schedule disabled");
-            }else{
+            } else {
                 logger.error("Problem initializing the scheduled task: ", e);
             }
         }
