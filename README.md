@@ -18,6 +18,7 @@ and soon after more and more people started asking for a compiled version so the
  - working DIH configuration in place 
 
 ## Install
+#### Important! There's currently [a bug](https://github.com/mbonaci/solr-data-import-scheduler/issues/1) in the jar file, so you'll have to build it yourself, from the provided source (until I get some [free time](http://www.manning.com/bonaci))
  1. download the jar file [here](https://github.com/mbonaci/solr-data-import-scheduler/raw/master/release/dihs.jar) (it's in the [release](./release) folder).
  2. place the jar file into the `web-inf/lib` folder, inside your WAR (before deployment), or into `lib` folder inside (already deployed) Solr's root
  3. copy the contents of [dataimport.properties](./conf/dataimport.properties) file (everything bellow `last_index_time`) in your existing `dataimport.properties`. Make sure, regardless of whether you have single or multi-core Solr, that you use `dataimport.properties` located in your `solr.home/conf` (NOT `solr.home/core/conf`)
