@@ -1,7 +1,7 @@
 ## Apache Solr DataImportHandler Scheduler
 Used to schedule recurring data imports into Apache Solr (from e.g. RDBMS, JSON files, ...).  
 Written for Solr 3.1 and migrated from GoogleCode.  
-I'll gladly accept pool request that refactors it to work with latest version of Solr.  
+I'll gladly accept a pull request that refactors it to work with latest version of Solr.  
 
 ## And the Solr is... what exactly?
 Solr is a very popular, blindingly fast open source enterprise search platform that originated inside Doug Cutting's Apache Lucene project.
